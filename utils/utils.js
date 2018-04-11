@@ -1,0 +1,3 @@
+const emptyFunc = () => {}
+
+export { emptyFunc }
