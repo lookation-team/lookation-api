@@ -23,45 +23,55 @@ exports.login = (req, reply) => {
             reply(error)
         }
     })
+    .catch(err => reply(Boom.badImplementation(err)))
 }
 
 exports.getLookers = (req, reply) => {
     LookerManager.findAll()
-        .then(rows => {
-            reply(rows)
-        })
+    .then(rows => {
+        reply(rows.map(l => {
+            const looker = new Looker(l)
+            return looker.getBasicInfo()
+        }))
+    })
+    .catch(err => reply(Boom.badImplementation(err)))
 }
 
 exports.postLooker = (req, reply) => {
     const newLooker = new Looker(req.payload)
     newLooker.save()
-    .then((err, looker) => {
-        if (err) return reply(err)
-        reply(looker)
+    .then(looker => {
+        const resLooker = new Looker(looker)
+        reply(resLooker.getBasicInfo())
     })
+    .catch(err => reply(Boom.badImplementation(err)))
 }
 
 exports.getLooker = (req, reply) => {
     LookerManager.findById(req.params.id)
     .then(looker => {
         if (!looker.id) return reply(looker)
-        delete looker.password
-        reply(looker)
+        const resLooker = new Looker(looker)
+        reply(resLooker.getFullInfo())
     })
+    .catch(err => reply(Boom.badImplementation(err)))
 }
 
 exports.putLooker = (req, reply) => {
-    LookerManager.findOneAndUpdate(req.params.id, req.payload)
-    .then((err, looker) => {
-        if (err) return reply(err)
-        reply(looker)
+    const looker = new Looker(Object.assign({ id: req.params.id }, req.payload))
+    looker.update()
+    .then(l => {
+        const resLooker = new Looker(l)
+        reply(resLooker.getBasicInfo())
     })
+    .catch(err => reply(Boom.badImplementation(err)))
 }
 
 exports.deleteLooker = (req, reply) => {
-    LookerManager.remove(req.params.id)
-    .then((err, looker) => {
-        if (err) return reply(err)
+    const looker = new Looker(req.params)
+    looker.remove()
+    .then(() => {
         reply({ message: 'Looker successfully deleted' })
     })
+    .catch(err => reply(Boom.badImplementation(err)))
 }

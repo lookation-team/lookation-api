@@ -18,7 +18,7 @@ module.exports = {
     },
 
     insert(looker){
-        return queryFirst('INSERT INTO looker(id, firstName, lastName, password, userName, email, phoneNumber, gender, birthDate) VALUES(uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, email, phonenumber',
+        return queryFirst('INSERT INTO looker(id, "firstName", "lastName", password, "userName", email, "phoneNumber", gender, "birthDate") VALUES(uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
             [
                 looker.firstName,
                 looker.lastName,
@@ -31,7 +31,7 @@ module.exports = {
             ])
     },
 
-    updateOne(looker, id){
+    updateOne(looker){
         const keys = Object.keys(looker).filter(k => {
             if (looker[k] && k !== 'id') {
                 return k
@@ -39,7 +39,7 @@ module.exports = {
         })
         const values = keys.map(k => looker[k])
         values.push(looker.id)
-        const keyString = keys.map((k, i) => `${k} = $${i}`).join(', ')
-        return query(`UPDATE looker SET ${keyString} WHERE id = $${keys.values.length}`, values)
+        const keyString = keys.map((k, i) => `"${k}" = $${i+1}`).join(', ')
+        return queryFirst(`UPDATE looker SET ${keyString} WHERE id = $${values.length} RETURNING *`, values)
     }
 }

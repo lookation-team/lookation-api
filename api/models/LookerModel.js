@@ -14,6 +14,20 @@ class Looker {
         this.birthDate = obj.birthDate
     }
 
+    getBasicInfo() {
+        return {
+            id: this.id,
+            email: this.email,
+            userName: this.userName
+        }
+    }
+
+    getFullInfo() {
+        const looker = Object.assign({}, this)
+        delete looker.password
+        return looker
+    }
+
     hashPassword() {
         return argon2.hash(this.password, {
                 timeCost: 5, memoryCost: 14, parallelism: 2, type: argon2.argon2id
