@@ -52,7 +52,6 @@ const swaggerConf = [
 const jwtValidate = (token, request, callback) => {
     jwt.verify(token, SECRET, (err, decoded) => {
         if (err) return callback(Boom.forbidden('Invalid token'), false, null)
-        console.log(decoded)
         callback(null, true, decoded)
     })
 }

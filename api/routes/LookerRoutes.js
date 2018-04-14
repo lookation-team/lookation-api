@@ -1,6 +1,8 @@
 import Paths from '../conf/Paths'
 import LookerController from '../controllers/LookerController'
 import Joi from 'joi'
+import Boom from 'boom'
+import jwt from 'jsonwebtoken'
 
 module.exports = server => {
     server.route({
@@ -10,8 +12,8 @@ module.exports = server => {
         config: {
             description: 'Get list of all lookers',
             auth: {
-                strategy: 'token',
-                scope: ['admin']
+                strategy: 'token'/*,
+                scope: ['admin']*/
             },
             tags: ['api']
         }
@@ -26,6 +28,13 @@ module.exports = server => {
             auth: 'token',
             tags: ['api'],
             validate: {
+                headers: (val, options, next) => {
+                    const decoded = jwt.decode(val.authorization.substr(7, val.authorization.length))
+                    if (decoded.id !== options.context.params.id) {
+                        return next(Boom.unauthorized(), val)
+                    }
+                    return next(null, val)
+                },
                 params: {
                     id: Joi.string().length(36).required()
                 }

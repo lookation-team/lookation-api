@@ -1,12 +1,12 @@
-import { query } from '../conf/dbConf'
+import { query, queryFirst } from '../conf/dbConf'
 
 module.exports = {
     findById(id){
-        return query('SELECT * FROM looker WHERE id = $1', [idUser])
+        return queryFirst('SELECT * FROM looker WHERE id = $1', [id])
     },
 
     findByEmail(looker){
-        return query('SELECT * FROM looker WHERE email = $1', [looker.email])
+        return queryFirst('SELECT * FROM looker WHERE email = $1', [looker.email])
     },
 
     findAll(){
@@ -18,7 +18,7 @@ module.exports = {
     },
 
     insert(looker){
-        return query('INSERT INTO looker(id, firstName, lastName, password, userName, email, phoneNumber, gender, birthDate) VALUES(uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, email, phonenumber',
+        return queryFirst('INSERT INTO looker(id, firstName, lastName, password, userName, email, phoneNumber, gender, birthDate) VALUES(uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, email, phonenumber',
             [
                 looker.firstName,
                 looker.lastName,

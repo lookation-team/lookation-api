@@ -1,15 +1,15 @@
 import Boom from 'boom'
 import LookerManager from '../dbManagers/LookerManager'
 import Looker from '../models/LookerModel'
-import { simpleLooker, getToken } from '../../utils/modelUtils'
+import { getToken } from '../../utils/modelUtils'
 
 exports.login = (req, reply) => {
     const logLooker = new Looker(req.payload)
     LookerManager.findByEmail(logLooker)
     .then(row => {
         const error = Boom.unauthorized('invalid email or password', { email: logLooker.email })
-        if (row[0]) {
-            const looker = new Looker(row[0])
+        if (row.id) {
+            const looker = new Looker(row)
             looker.checkPassword(logLooker.password)
             .then(match => {
                 if (match) {
@@ -42,21 +42,25 @@ exports.postLooker = (req, reply) => {
 }
 
 exports.getLooker = (req, reply) => {
-    LookerManager.findById(req.params.id, (err, user) => {
-        if (err) return reply(err)
-        reply(simpleLooker(user))
+    LookerManager.findById(req.params.id)
+    .then(looker => {
+        if (!looker.id) return reply(looker)
+        delete looker.password
+        reply(looker)
     })
 }
 
 exports.putLooker = (req, reply) => {
-    LookerManager.findOneAndUpdate(req.params.id, req.payload, (err, user) => {
+    LookerManager.findOneAndUpdate(req.params.id, req.payload)
+    .then((err, looker) => {
         if (err) return reply(err)
-        reply(user)
+        reply(looker)
     })
 }
 
 exports.deleteLooker = (req, reply) => {
-    LookerManager.remove(req.params.id, (err, user) => {
+    LookerManager.remove(req.params.id)
+    .then((err, looker) => {
         if (err) return reply(err)
         reply({ message: 'Looker successfully deleted' })
     })

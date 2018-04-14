@@ -11,4 +11,9 @@ const query = (text, params) => {
         .catch(e => console.error(e.stack))
 }
 
-export { client, query }
+const queryFirst = (text, params) => {
+    return query(text, params)
+        .then(rows => rows[0] || {})
+}
+
+export { client, query, queryFirst }
