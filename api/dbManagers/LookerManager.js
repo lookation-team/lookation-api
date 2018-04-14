@@ -18,7 +18,7 @@ module.exports = {
     },
 
     insert(looker){
-        return query('INSERT INTO looker(firstName, lastName, password, lookerName, email, phoneNumber, gender, birthDate) VALUES($1, $2, $3, $4, $5, $6, $7, $8)',
+        return query('INSERT INTO looker(id, firstName, lastName, password, userName, email, phoneNumber, gender, birthDate) VALUES(uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, email, phonenumber',
             [
                 looker.firstName,
                 looker.lastName,

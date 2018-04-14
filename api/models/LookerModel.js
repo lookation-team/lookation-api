@@ -31,9 +31,12 @@ class Looker {
     }
 
     save() {
-        const looker = Object.assign({}, this)
-        delete looker.id
-        return LookerManager.insert(user)
+        return this.hashPassword()
+            .then(hash => {
+                const looker = Object.assign({}, this)
+                delete looker.id
+                return LookerManager.insert(looker)
+            })
     }
 
     remove() {

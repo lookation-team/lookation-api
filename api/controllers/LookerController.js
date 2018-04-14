@@ -33,9 +33,11 @@ exports.getLookers = (req, reply) => {
 }
 
 exports.postLooker = (req, reply) => {
-    LookerManager.save(req.payload, (err, user) => {
+    const newLooker = new Looker(req.payload)
+    newLooker.save()
+    .then((err, looker) => {
         if (err) return reply(err)
-        reply(user)
+        reply(looker)
     })
 }
 
