@@ -6,5 +6,8 @@ module.exports = {
         login: `${path}login`,
         path: `${path}looker`,
         pathId: `${path}looker/{id}`,
+    },
+    position: {
+        path: `${path}position`
     }
 }
