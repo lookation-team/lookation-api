@@ -1,9 +1,8 @@
 import Hapi from 'hapi'
 import hapiauthjwt from 'hapi-auth-jwt-simple'
-import { hapiConf, swaggerConf, useAuthStrategy } from './api/conf/serverConf'
+import { hapiConf, swaggerConf, useAuthStrategy, socketAuthMiddleware } from './api/conf/serverConf'
 import { client } from './api/conf/dbConf'
 import routes from './api/routes/routes'
-import Nes from 'nes'
 import socket from 'socket.io'
 
 require('dotenv').config()
@@ -37,8 +36,8 @@ server.register(hapiauthjwt, err => { if (err) throw err })
 useAuthStrategy(server)
 
 /*Register for Nes Websockets*/
-//server.register(Nes, err => { if (err) throw err })
 const io = socket.listen(server.listener)
+io.use(socketAuthMiddleware)
 
 /* Adding routes to the Server */
 routes(server, io)

@@ -1,32 +1,22 @@
 import { position } from '../conf/Paths'
 import { client } from '../conf/redisConf'
-import { jwtVerify } from '../../utils/Utils'
+import { jwtDecode } from '../../utils/utils'
 
 module.exports = (server, io) => {
-    /*server.route({
-        method: 'GET',
-        path: position.path,
-        config: {
-            id: 'position',
-            handler: (req, reply) => {
-                return `Hello World -- positions`
-            }
-        }
-    })*/
-
     io.on('connection', socket => {
-        socket.on('auth', token => {
-            jwtVerify(token, (err, decoded) => {
-                if (err) return socket.disconnect(true)
+        const token = jwtDecode(socket.handshake.query.token)
+        console.log(token)
 
-                socket.on('position', pos => {
-                    const multi = client.multi()
-                    multi.HMSET(`looker:${decoded.id}`, pos)
-                    multi.sadd('looker', decoded.id)
-                    multi.exec((err, rep) => {
-                        console.log(err, rep)
-                    })
-                })
+        socket.on('position', pos => {
+            console.log(pos)
+            const multi = client.multi()
+            multi.HMSET(`looker:${token.id}`, pos)
+            multi.sadd('looker', token.id)
+            multi.SSCAN('looker', 0)
+            multi.exec((err, rep) => {
+                const lookerPos = Object.assign({}, pos)
+                lookerPos.id = token.id
+                socket.emit('lookerMouv', lookerPos)
             })
         })
     })

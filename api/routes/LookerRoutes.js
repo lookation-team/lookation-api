@@ -28,13 +28,13 @@ module.exports = server => {
             auth: 'token',
             tags: ['api'],
             validate: {
-                headers: (val, options, next) => {
+                /*headers: (val, options, next) => {
                     const decoded = jwt.decode(val.authorization.substr(7, val.authorization.length))
                     if (decoded.id !== options.context.params.id) {
                         return next(Boom.unauthorized(), val)
                     }
                     return next(null, val)
-                },
+                },*/
                 params: {
                     id: Joi.string().length(36).required()
                 }
