@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken'
 import vision from 'vision'
 import inert from 'inert'
 import Boom from 'boom'
-import { jwtVerify } from '../../utils/utils'
 
 require('dotenv').config()
 
@@ -51,7 +50,7 @@ const swaggerConf = [
 ]
 
 const jwtValidate = (token, request, callback) => {
-    jwtVerify(token, (err, decoded) => {
+    jwt.verify(token, SECRET, (err, decoded) => {
         if (err) return callback(Boom.forbidden('Invalid token'), false, null)
         callback(null, true, decoded)
     })
