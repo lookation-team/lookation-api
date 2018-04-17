@@ -34,9 +34,9 @@ module.exports = (server, io) => {
                     return reply(rep[0].map((o, i) => {
                         return {
                             id: o,
-                            longitude: rep[1][i*3+1],
-                            latitude: rep[1][i*3+2],
-                            date: rep[1][i*3+3]
+                            longitude: rep[1][i*3],
+                            latitude: rep[1][i*3+1],
+                            date: rep[1][i*3+2]
                         }
                     }))
                 })
