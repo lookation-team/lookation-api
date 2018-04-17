@@ -27,8 +27,8 @@ module.exports = (server, io) => {
         path: position.path,
         handler: (req, reply) => {
             client.multi()
-                .sort('looker', 'BY', 'looker')
-                .sort('looker', 'BY', 'looker', 'GET', 'looker:*->longitude', 'GET', 'looker:*->latitude', 'GET', 'looker:*->timestamp')
+                .sort('looker', 'BY', 'looker:*->timestamp', 'DESC')
+                .sort('looker', 'BY', 'looker:*->timestamp', 'DESC', 'GET', 'looker:*->longitude', 'GET', 'looker:*->latitude', 'GET', 'looker:*->timestamp')
                 .exec((err, rep) => {
                     if (err) return reply(Boom.badImplementation())
                     return reply(rep[0].map((o, i) => {
