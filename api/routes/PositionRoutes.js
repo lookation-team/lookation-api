@@ -1,3 +1,4 @@
+import Boom from 'boom'
 import { position } from '../conf/Paths'
 import { client } from '../conf/redisConf'
 import { jwtDecode } from '../../utils/utils'
@@ -16,8 +17,34 @@ module.exports = (server, io) => {
             multi.exec((err, rep) => {
                 const lookerPos = Object.assign({}, pos)
                 lookerPos.id = token.id
-                socket.emit('lookerMouv', lookerPos)
+                socket.broadcast.emit('lookerMouv', lookerPos)
             })
         })
+    })
+
+    server.route({
+        method: 'GET',
+        path: position.path,
+        handler: (req, reply) => {
+            client.multi()
+                .smembers('looker')
+                .sort('looker', 'by', 'looker:*->date', 'get', 'looker:*->longitude', 'get', 'looker:*->latitude', 'get', 'looker:*->date')
+                .exec((err, rep) => {
+                    if (err) return reply(Boom.badImplementation())
+                    return reply(rep[0].map((o, i) => {
+                        return {
+                            id: o,
+                            longitude: rep[1][i*3+1],
+                            latitude: rep[1][i*3+2],
+                            date: rep[1][i*3+3]
+                        }
+                    }))
+                })
+        },
+        config: {
+            description: 'Get list of all looker\'s positions',
+            auth: 'token',
+            tags: ['api']
+        }
     })
 }
