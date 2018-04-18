@@ -8,6 +8,7 @@ module.exports = {
         pathId: `${path}looker/{id}`,
     },
     position: {
-        path: `${path}position`
+        path: `${path}position`,
+        looker: `${path}position/looker/{id}`
     }
 }

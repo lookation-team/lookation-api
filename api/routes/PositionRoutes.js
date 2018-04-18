@@ -1,15 +1,15 @@
-import Boom from 'boom'
+import Joi from 'joi'
 import { position } from '../conf/Paths'
 import { client } from '../conf/redisConf'
 import { jwtDecode } from '../../utils/utils'
+import { positions, lookerPositions } from '../controllers/PositionController'
+import { insert } from '../dbManagers/PositionManager'
 
 module.exports = (server, io) => {
     io.on('connection', socket => {
         const token = jwtDecode(socket.handshake.query.token)
-        console.log(token)
 
         socket.on('position', pos => {
-            console.log(pos)
             const multi = client.multi()
             multi.HMSET(`looker:${token.id}`, pos)
             multi.sadd('looker', token.id)
@@ -18,6 +18,7 @@ module.exports = (server, io) => {
                 const lookerPos = Object.assign({}, pos)
                 lookerPos.id = token.id
                 socket.broadcast.emit('lookerMouv', lookerPos)
+                insert(lookerPos)
             })
         })
     })
@@ -25,25 +26,29 @@ module.exports = (server, io) => {
     server.route({
         method: 'GET',
         path: position.path,
-        handler: (req, reply) => {
-            client.multi()
-                .sort('looker', 'BY', 'looker:*->timestamp', 'DESC')
-                .sort('looker', 'BY', 'looker:*->timestamp', 'DESC', 'GET', 'looker:*->longitude', 'GET', 'looker:*->latitude', 'GET', 'looker:*->timestamp')
-                .exec((err, rep) => {
-                    if (err) return reply(Boom.badImplementation())
-                    return reply(rep[0].map((o, i) => {
-                        return {
-                            id: o,
-                            longitude: rep[1][i*3],
-                            latitude: rep[1][i*3+1],
-                            date: rep[1][i*3+2]
-                        }
-                    }))
-                })
-        },
+        handler: positions,
         config: {
-            description: 'Get list of all looker\'s positions',
+            description: 'Get last positions of all lookers',
             auth: 'token',
+            tags: ['api']
+        }
+    })
+
+    server.route({
+        method: 'GET',
+        path: position.looker,
+        handler: lookerPositions,
+        config: {
+            description: 'Get all positions of one looker',
+            auth: {
+                strategy: 'token',
+                scope: ['admin']
+            },
+            validate: {
+                params: {
+                    id: Joi.string().length(36).required()
+                }
+            },
             tags: ['api']
         }
     })

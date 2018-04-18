@@ -4,10 +4,10 @@ require('dotenv').config()
 
 const SECRET = process.env.AUTH_SECRET || 'SECRET'
 
-const getToken = id => jwt.sign(
+const getToken = (id, scope = ['user']) => jwt.sign(
     {
         id: id,
-        scope: ['user']
+        scope: scope
     },
     SECRET,
     { expiresIn: 60 * 60 },

@@ -12,8 +12,8 @@ module.exports = server => {
         config: {
             description: 'Get list of all lookers',
             auth: {
-                strategy: 'token'/*,
-                scope: ['admin']*/
+                strategy: 'token',
+                scope: ['admin']
             },
             tags: ['api']
         }
@@ -93,7 +93,8 @@ module.exports = server => {
             validate: {
                 payload: {
                     email: Joi.string().email().required(),
-                    password: Joi.string().min(8).required()
+                    password: Joi.string().min(8).required(),
+                    scopes: Joi.array().sparse().items(Joi.string()).min(1)
                 }
             }
         }

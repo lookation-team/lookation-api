@@ -12,6 +12,7 @@ class Looker {
         this.phoneNumber = obj.phoneNumber
         this.gender = obj.gender
         this.birthDate = obj.birthDate
+        this.scopes = obj.scopes
     }
 
     getBasicInfo() {
@@ -25,6 +26,7 @@ class Looker {
     getFullInfo() {
         const looker = Object.assign({}, this)
         delete looker.password
+        delete looker.scopes
         return looker
     }
 

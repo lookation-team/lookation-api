@@ -2,6 +2,7 @@ import Boom from 'boom'
 import LookerManager from '../dbManagers/LookerManager'
 import Looker from '../models/LookerModel'
 import { getToken } from '../../utils/modelUtils'
+import { find } from 'lodash'
 
 exports.login = (req, reply) => {
     const logLooker = new Looker(req.payload)
@@ -9,11 +10,20 @@ exports.login = (req, reply) => {
     .then(row => {
         const error = Boom.unauthorized('invalid email or password', { email: logLooker.email })
         if (row.id) {
+            if (logLooker.scopes && logLooker.scopes.length) {
+                const scopes = logLooker.scopes.filter(s => {
+                    const c = find(row.scopes, r => r === s)
+                    return !!c
+                })
+                if (logLooker.scopes.length !== scopes.length) {
+                    return reply(Boom.unauthorized('Required scopes don\'t owned'))
+                }
+            }
             const looker = new Looker(row)
             looker.checkPassword(logLooker.password)
             .then(match => {
                 if (match) {
-                    const token = getToken(looker.id)
+                    const token = getToken(looker.id, logLooker.scopes)
                     reply({ token: token }).header('Authorization', token)
                 } else {
                     reply(error)
