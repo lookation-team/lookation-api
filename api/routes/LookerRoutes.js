@@ -70,7 +70,7 @@ module.exports = server => {
                 payload: {
                     firstName: Joi.string().min(2).required(),
                     lastName: Joi.string().min(2).required(),
-                    password: Joi.string().min(8).required(),
+                    password: Joi.string().min(2).required(),
                     userName: Joi.string().min(2).required(),
                     email: Joi.string().email().required(),
                     /* TODO WRITE a Regular expression to check phone number validity */
@@ -93,7 +93,7 @@ module.exports = server => {
             validate: {
                 payload: {
                     email: Joi.string().email().required(),
-                    password: Joi.string().min(8).required(),
+                    password: Joi.string().min(2).required(),
                     scopes: Joi.array().sparse().items(Joi.string()).min(1)
                 }
             }
@@ -112,7 +112,7 @@ module.exports = server => {
                 payload: {
                     firstName: Joi.string().min(2),
                     lastName: Joi.string().min(2),
-                    password: Joi.string().min(8),
+                    password: Joi.string().min(2),
                     userName: Joi.string().min(2),
                     email: Joi.string().email(),
                     /* TODO WRITE a Regular expression to check phone number validity */
