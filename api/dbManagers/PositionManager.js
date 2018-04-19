@@ -10,6 +10,6 @@ module.exports = {
             ])
     },
     findByLookerId(id){
-        return query('SELECT id, ST_AsGeoJSON(location) as coords, "creationDate", looker_id FROM position WHERE looker_id=$1', [id])
+        return query('SELECT id, ST_AsGeoJSON(location) as coords, "creationDate", looker_id FROM position WHERE looker_id=$1 ORDER BY "creationDate" ASC', [id])
     }
 }
