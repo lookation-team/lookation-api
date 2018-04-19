@@ -2,10 +2,9 @@ import { query, queryFirst } from '../conf/dbConf'
 
 module.exports = {
     insert(position){
-        return queryFirst(`INSERT into position(id, location, "creationDate", looker_id) VALUES (uuid_generate_v4(), ST_GeomFromText('POINT($1 $2)', 4326), $3, $4)`,
+        return queryFirst('INSERT into position(id, location, "creationDate", looker_id) VALUES (uuid_generate_v4(), ST_GeomFromText($1, 4326), $2, $3)',
             [
-                position.longitude,
-                position.latitude,
+                `POINT(${position.longitude} ${position.latitude})`,
                 position.date,
                 position.id
             ])
