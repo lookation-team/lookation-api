@@ -2,6 +2,7 @@ import Boom from 'boom'
 import LookerManager from '../dbManagers/LookerManager'
 import Looker from '../models/LookerModel'
 import { getToken } from '../../utils/modelUtils'
+import { client } from '../conf/redisConf'
 import { find } from 'lodash'
 
 exports.login = (req, reply) => {
@@ -33,7 +34,7 @@ exports.login = (req, reply) => {
             reply(error)
         }
     })
-    .catch(err => reply(Boom.badImplementation(err)))
+    .catch(err => reply(Boom.badImplementation()))
 }
 
 exports.getLookers = (req, reply) => {
@@ -44,7 +45,7 @@ exports.getLookers = (req, reply) => {
             return looker.getBasicInfo()
         }))
     })
-    .catch(err => reply(Boom.badImplementation(err)))
+    .catch(err => reply(Boom.badImplementation()))
 }
 
 exports.postLooker = (req, reply) => {
@@ -54,7 +55,7 @@ exports.postLooker = (req, reply) => {
         const resLooker = new Looker(looker)
         reply(resLooker.getBasicInfo())
     })
-    .catch(err => reply(Boom.badImplementation(err)))
+    .catch(err => reply(Boom.badImplementation()))
 }
 
 exports.getLooker = (req, reply) => {
@@ -64,7 +65,7 @@ exports.getLooker = (req, reply) => {
         const resLooker = new Looker(looker)
         reply(resLooker.getFullInfo())
     })
-    .catch(err => reply(Boom.badImplementation(err)))
+    .catch(err => reply(Boom.badImplementation()))
 }
 
 exports.putLooker = (req, reply) => {
@@ -74,14 +75,20 @@ exports.putLooker = (req, reply) => {
         const resLooker = new Looker(l)
         reply(resLooker.getBasicInfo())
     })
-    .catch(err => reply(Boom.badImplementation(err)))
+    .catch(err => reply(Boom.badImplementation()))
 }
 
 exports.deleteLooker = (req, reply) => {
     const looker = new Looker(req.params)
     looker.remove()
     .then(() => {
-        reply({ message: 'Looker successfully deleted' })
+        client.multi()
+        .del(`looker:${looker.id}`)
+        .srem('looker', looker.id)
+        .exec(err => {
+            if (err) return reply(Boom.badImplementation())
+            reply({ message: 'Looker successfully deleted' })
+        })
     })
-    .catch(err => reply(Boom.badImplementation(err)))
+    .catch(err => reply(Boom.badImplementation()))
 }
