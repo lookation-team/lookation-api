@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import vision from 'vision'
 import inert from 'inert'
 import Boom from 'boom'
+import { client } from './redisConf'
 
 require('dotenv').config()
 
@@ -52,7 +53,13 @@ const swaggerConf = [
 const jwtValidate = (token, request, callback) => {
     jwt.verify(token, SECRET, (err, decoded) => {
         if (err) return callback(Boom.forbidden('Invalid token'), false, null)
-        callback(null, true, decoded)
+        client.multi()
+            .hget(`looker:${decoded.id}`, 'token')
+            .exec((err, rep) => {
+                if (err) return callback(Boom.badImplementation(), false, null)
+                if (!rep.length || rep[0] !== token) return (callback(Boom.forbidden('Bad token'), false, null))
+                callback(null, true, decoded)
+            })
     })
 }
 

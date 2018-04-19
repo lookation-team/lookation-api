@@ -35,7 +35,7 @@ server.register(swaggerConf, {
 server.register(hapiauthjwt, err => { if (err) throw err })
 useAuthStrategy(server)
 
-/*Register for Nes Websockets*/
+/*Register for Websockets*/
 const io = socket.listen(server.listener)
 io.use(socketAuthMiddleware)
 

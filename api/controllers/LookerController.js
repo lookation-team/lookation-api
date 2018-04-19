@@ -26,6 +26,7 @@ exports.login = (req, reply) => {
                 if (match) {
                     const token = getToken(looker.id, logLooker.scopes)
                     reply({ token: token }).header('Authorization', token)
+                    client.hset(`looker:${looker.id}`, 'token', token)
                 } else {
                     reply(error)
                 }
